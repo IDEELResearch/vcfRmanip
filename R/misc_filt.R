@@ -244,3 +244,39 @@ vcfR2removesingletons_gt <- function(vcfRobj){
 
 
 
+#' @title vcfR2removesingletons_gt
+#'
+#' @description Read vcfR object and convert genotype calls to 0,1,2
+#' @export
+#'
+
+
+gtmat012 <- function(vcfRobj){
+
+  # -----------------------------------------------------
+  # determine ploidy to determine genotype numeric placeholder
+  #------------------------------------------------------
+  if(stringr::str_detect(vcfR::extract.gt(vcfRobj)[1,2], "\\|")){ # grab first site
+    stop("This tool does not support phased vcfs")
+  } else if(stringr::str_detect(vcfR::extract.gt(vcfRobj)[1,2], "\\/")) {
+    if(length( stringr::str_split(vcfR::extract.gt(vcfRobj)[1,2], "\\/", simplify = T)) > 2){
+      stop("You have a ploidy that is less than 1 or greater than 3, which cannot be accomodated by this tool")
+    } else{
+      gtmatrix <- vcfR::extract.gt(vcfRobj, element='GT', as.numeric=F) # numeric as T doesn't parse 0/1 correctly
+      gtmatrix[gtmatrix == "0/0"] <- 0
+      gtmatrix[gtmatrix == "0/1"] <- 1
+      gtmatrix[gtmatrix == "1/1"] <- 2
+      gtmatrix[is.na(gtmatrix)] <- NA
+      gtmatrix <- apply(gtmatrix, 2, function(x){as.numeric(x)}) # need to convert from char (--dependent on case of "/") to numeric
+    }
+  } else {
+
+    gtmatrix <- vcfR::extract.gt(vcfRobj, element='GT', as.numeric=T)
+    gtmatrix[gtmatrix == 0] <- 0
+    gtmatrix[gtmatrix == 1] <- 2
+    gtmatrix[is.na(gtmatrix)] <- NA
+  }
+
+  return(gtmatrix)
+
+}
