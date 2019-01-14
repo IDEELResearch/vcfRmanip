@@ -143,7 +143,15 @@ vcfR2segsites_gt <- function(vcfRobj){
 
 
   segsites <- apply(vcfgt, 1, function(x){
-    !all(x[!is.na(x)] == 1 | x[!is.na(x)] == 0 | x[!is.na(x)] == 0.5 )
+    homoref <- all(x[!is.na(x)] == 0)
+    homoalt <- all(x[!is.na(x)] == 1)
+    het <- all(x[!is.na(x)] == 0.5)
+
+    if(sum(c(homoref, homoalt, het)) == 1){
+      return(F)
+    } else{
+      return(T)
+    }
   }
   )
 
