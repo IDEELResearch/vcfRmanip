@@ -177,7 +177,7 @@ vcfR2removesingletons_gt <- function(vcfRobj){
 
   notsingleton <- apply(vcfgt, 1, function(x){
 
-    cmpr <- mean(as.numeric(t))
+    cmpr <- mean(as.numeric(x))
 
     if(
       cmpr %in% c(1/ncol(vcfgt), (1-1/ncol(vcfgt)), 0.5/ncol(vcfgt), (1-0.5/ncol(vcfgt))) # singleton for homo and then singleton for het
