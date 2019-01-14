@@ -232,7 +232,7 @@ vcfR2removesingletons_gt <- function(vcfRobj){
 
   vcfRobj@gt <- vcfRobj@gt[!singleton,]
 
-  fix <- as.matrix(vcfR::getFIX(vcfRobj, getINFO = T)[notsingleton,])
+  fix <- as.matrix(vcfR::getFIX(vcfRobj, getINFO = T)[!singleton,])
   gt <- as.matrix(vcfRobj@gt)
   meta <- append(vcfRobj@meta, paste("##Additional Filters for segregating sites, such that GT call must be segregating within samples"))
 
