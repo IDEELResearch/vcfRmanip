@@ -84,15 +84,13 @@ vcffilter_CHROMPOS <- function(vcfRobject = NULL,
 
 
 
-#' @title vcfR2vcffilter_SEGSITES
+#' @title vcfR2segsites_wsaf
 #'
-#'
+#' @description Read vcfR object to segregated sites based on wsaf
 #' @export
-#-----------------------------------------------------
-# Read vcfR object to segregated sites
-#------------------------------------------------------
 
-vcfR2segsites <- function(vcfRobject = NULL, err = 0.025){
+
+vcfR2segsites_wsaf <- function(vcfRobject = NULL, err = 0.025){
   vcf <- vcfRobject # legacy
   if(!identical(vcf, vcf[vcfR::is.biallelic(vcf)])){
     stop("VCF must be biallelic for this to work.")
@@ -126,6 +124,81 @@ vcfR2segsites <- function(vcfRobject = NULL, err = 0.025){
 
   return(newvcfR)
 
+}
+
+
+
+#' @title vcfR2segsites_gt
+#'
+#' @description Read vcfR object to segregated sites based on GT
+#' @export
+
+vcfR2segsites_gt <- function(vcfR){
+  if(! all.equal(vcfRobj, extract.indels(vcfRobj, return.indels = F)) ){
+    stop("Only vcfs that have been subsetted to SNPs are accepted.")
+  }
+
+
+  vcfgt <- vcfR::extract.gt(vcfRobj, element="GT")
+
+
+  segsites <- apply(vcfgt, 1, function(x){
+    !all(x[!is.na(x)] == 1 | x[!is.na(x)] == 0 | x[!is.na(x)] == 0.5 )
+  }
+  )
+
+  vcfRobj@gt <- vcfRobj@gt[segsites,]
+
+  fix <- as.matrix(vcfR::getFIX(vcfRobj, getINFO = T)[segsites,])
+  gt <- as.matrix(vcfRobj@gt)
+  meta <- append(vcfRobj@meta, paste("##Additional Filters for segregating sites, such that GT call must be segregating within samples"))
+
+  # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
+  newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
+
+  return(newvcfR)
+}
+
+
+#' @title vcfR2removesingletons_gt
+#'
+#' @description Read vcfR object and remove all loci that have are singletons
+#' @export
+#'
+
+vcfR2removesingletons_gt <- function(vcfR){
+  if(! all.equal(vcfRobj, extract.indels(vcfRobj, return.indels = F)) ){
+    stop("Only vcfs that have been subsetted to SNPs are accepted.")
+  }
+
+
+  vcfgt <- vcfR::extract.gt(vcfRobj, element="GT")
+
+
+  notsingleton <- apply(vcfgt, 1, function(x){
+
+    cmpr <- mean(as.numeric(t))
+
+    if(
+      cmpr %in% c(1/ncol(vcfgt), (1-1/ncol(vcfgt)), 0.5/ncol(vcfgt), (1-0.5/ncol(vcfgt))) # singleton for homo and then singleton for het
+    ){
+      return(FALSE)
+    } else {
+      return(TRUE)
+    }
+  }
+  )
+
+  vcfRobj@gt <- vcfRobj@gt[notsingleton,]
+
+  fix <- as.matrix(vcfR::getFIX(vcfRobj, getINFO = T)[notsingleton,])
+  gt <- as.matrix(vcfRobj@gt)
+  meta <- append(vcfRobj@meta, paste("##Additional Filters for segregating sites, such that GT call must be segregating within samples"))
+
+  # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
+  newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
+
+  return(newvcfR)
 }
 
 
