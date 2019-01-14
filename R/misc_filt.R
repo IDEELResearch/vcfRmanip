@@ -138,14 +138,35 @@ vcfR2segsites_gt <- function(vcfRobj){
     stop("Only vcfs that have been subsetted to SNPs are accepted.")
   }
 
+  # -----------------------------------------------------
+  # determine ploidy to determine genotype numeric placeholder
+  #------------------------------------------------------
+  if(stringr::str_detect(vcfR::extract.gt(vcfRobj)[1,2], "\\|")){ # grab first site
+    stop("This tool does not support phased vcfs")
+  } else if(stringr::str_detect(vcfR::extract.gt(vcfRobj)[1,2], "\\/")) {
+    if(length( stringr::str_split(vcfR::extract.gt(vcfRobj)[1,2], "\\/", simplify = T)) > 2){
+      stop("You have a ploidy that is less than 1 or greater than 3, which cannot be accomodated by this tool")
+    } else{
+      gtmatrix <- vcfR::extract.gt(vcfRobj, element='GT', as.numeric=F) # numeric as T doesn't parse 0/1 correctly
+      gtmatrix[gtmatrix == "0/0"] <- 0
+      gtmatrix[gtmatrix == "0/1"] <- 1
+      gtmatrix[gtmatrix == "1/1"] <- 2
+      gtmatrix[is.na(gtmatrix)] <- NA
+      gtmatrix <- apply(gtmatrix, 2, function(x){as.numeric(x)}) # need to convert from char (--dependent on case of "/") to numeric
+    }
+  } else {
 
-  vcfgt <- vcfR::extract.gt(vcfRobj, element="GT")
+    gtmatrix <- vcfR::extract.gt(vcfRobj, element='GT', as.numeric=T)
+    gtmatrix[gtmatrix == 0] <- 0
+    gtmatrix[gtmatrix == 1] <- 2
+    gtmatrix[is.na(gtmatrix)] <- NA
+  }
 
 
-  segsites <- apply(vcfgt, 1, function(x){
+  segsites <- apply(gtmatrix, 1, function(x){
     homoref <- all(x[!is.na(x)] == 0)
-    homoalt <- all(x[!is.na(x)] == 1)
-    het <- all(x[!is.na(x)] == 0.5)
+    homoalt <- all(x[!is.na(x)] == 2)
+    het <- all(x[!is.na(x)] == 1)
 
     if(sum(c(homoref, homoalt, het)) == 1){
       return(F)
@@ -180,24 +201,43 @@ vcfR2removesingletons_gt <- function(vcfRobj){
   }
 
 
-  vcfgt <- vcfR::extract.gt(vcfRobj, element="GT")
-
-
-  notsingleton <- apply(vcfgt, 1, function(x){
-
-    cmpr <- mean(as.numeric(x))
-
-    if(
-      cmpr %in% c(1/ncol(vcfgt), (1-1/ncol(vcfgt)), 0.5/ncol(vcfgt), (1-0.5/ncol(vcfgt))) # singleton for homo and then singleton for het
-    ){
-      return(FALSE)
-    } else {
-      return(TRUE)
+  # -----------------------------------------------------
+  # determine ploidy to determine genotype numeric placeholder
+  #------------------------------------------------------
+  if(stringr::str_detect(vcfR::extract.gt(vcfRobj)[1,2], "\\|")){ # grab first site
+    stop("This tool does not support phased vcfs")
+  } else if(stringr::str_detect(vcfR::extract.gt(vcfRobj)[1,2], "\\/")) {
+    if(length( stringr::str_split(vcfR::extract.gt(vcfRobj)[1,2], "\\/", simplify = T)) > 2){
+      stop("You have a ploidy that is less than 1 or greater than 3, which cannot be accomodated by this tool")
+    } else{
+      gtmatrix <- vcfR::extract.gt(vcfRobj, element='GT', as.numeric=F) # numeric as T doesn't parse 0/1 correctly
+      gtmatrix[gtmatrix == "0/0"] <- 0
+      gtmatrix[gtmatrix == "0/1"] <- 1
+      gtmatrix[gtmatrix == "1/1"] <- 2
+      gtmatrix[is.na(gtmatrix)] <- NA
+      gtmatrix <- apply(gtmatrix, 2, function(x){as.numeric(x)}) # need to convert from char (--dependent on case of "/") to numeric
     }
+  } else {
+
+    gtmatrix <- vcfR::extract.gt(vcfRobj, element='GT', as.numeric=T)
+    gtmatrix[gtmatrix == 0] <- 0
+    gtmatrix[gtmatrix == 1] <- 2
+    gtmatrix[is.na(gtmatrix)] <- NA
   }
+
+
+
+  singleton <- apply(gtmatrix, 1, function(x){
+
+    x <- factor(x, levels = c(0,1,2))
+    return(
+      all(as.data.frame(table(x))$Freq %in% c(0, 1, (length(x)-1))) # singleton must have 1, 0, and then rest #
+    )
+    }
+
   )
 
-  vcfRobj@gt <- vcfRobj@gt[notsingleton,]
+  vcfRobj@gt <- vcfRobj@gt[!singleton,]
 
   fix <- as.matrix(vcfR::getFIX(vcfRobj, getINFO = T)[notsingleton,])
   gt <- as.matrix(vcfRobj@gt)
