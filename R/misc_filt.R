@@ -134,9 +134,6 @@ vcfR2segsites_wsaf <- function(vcfRobject = NULL, err = 0.025){
 #' @export
 
 vcfR2segsites_gt <- function(vcfRobj){
-  if(! all.equal(vcfRobj, extract.indels(vcfRobj, return.indels = F)) ){
-    stop("Only vcfs that have been subsetted to SNPs are accepted.")
-  }
 
   # -----------------------------------------------------
   # determine ploidy to determine genotype numeric placeholder
@@ -196,10 +193,6 @@ vcfR2segsites_gt <- function(vcfRobj){
 #'
 
 vcfR2removesingletons_gt <- function(vcfRobj){
-  if(! all.equal(vcfRobj, extract.indels(vcfRobj, return.indels = F)) ){
-    stop("Only vcfs that have been subsetted to SNPs are accepted.")
-  }
-
 
   # -----------------------------------------------------
   # determine ploidy to determine genotype numeric placeholder
