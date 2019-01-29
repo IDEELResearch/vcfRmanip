@@ -55,15 +55,13 @@ vcfR2SubsetChromPos <- function(vcfRobject = NULL,
   }))
 
   chromposlong$keep <- "Y"
+  chromposlong$POS <- as.character(chromposlong$POS)
   passloci <- tibble::as_tibble(vcfR::getFIX(vcfRobject)) %>%
     dplyr::select(CHROM, POS) %>%
     dplyr::left_join(x=., y=chromposlong, by=c("CHROM", "POS")) %>%
     dplyr::mutate(keep = !is.na(keep)) %>%
     dplyr::select(keep) %>%
     as.matrix(.)
-
-
-
 
   meta <- append(vcfRobject@meta, paste("##Chromsome and Positiion were subsetted by user using vcfR2SubsetChromPos"))
   fix <- vcfRobject@fix[ passloci, ]
@@ -108,6 +106,8 @@ vcffilter_ChromPos <- function(vcfRobject = NULL,
     return(temp)
 
   }))
+
+  chromposlong$POS <- as.character(chromposlong$POS)
 
   passloci <- tibble::as_tibble(vcfR::getFIX(vcfRobject)) %>%
     dplyr::select(CHROM, POS) %>%
