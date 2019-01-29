@@ -32,7 +32,7 @@ vcfR2SubsetChrom <- function(vcfRobject = NULL,
 
 
 
-#' @title vcfR2SubsetChrom
+#' @title vcfR2SubsetChromPos
 #'
 #' @description Produces a subsetted \code{vcfR} based on chromosome. Note the chromosome name must be contained in the column \code{seqname}
 #'
@@ -63,15 +63,33 @@ vcfR2SubsetChromPos <- function(vcfRobject = NULL,
     dplyr::select(keep) %>%
     as.matrix(.)
 
-  meta <- append(vcfRobject@meta, paste("##Chromsome and Positiion were subsetted by user using vcfR2SubsetChromPos"))
-  fix <- vcfRobject@fix[ passloci, ]
-  gt <- vcfRobject@gt[ passloci, ]
 
+  meta <- append(vcfRobject@meta, paste("##Chromsome and Positiion were subsetted by user using vcfR2SubsetChromPos"))
+  #......
+  # catch instance of 1
+  #......
+  if(sum(passloci) == 1){
+    # going to do some extra work so attributes are all correct for matrix that has to go into vcfR class
+    fix <- matrix(vcfRobject@fix[ passloci, ], nrow=1)
+    fix <- as.data.frame(fix)
+    colnames(fix) <- colnames(vcfRobject@fix)
+    fix <- as.matrix(fix)
+
+
+    gt <- matrix(vcfRobject@gt[ passloci, ], nrow=1)
+    gt <- as.data.frame(gt)
+    colnames(gt) <- colnames(vcfRobject@gt)
+    gt <- as.matrix(gt)
+
+  } else {
+    fix <- vcfRobject@fix[ passloci, ]
+    gt <- vcfRobject@gt[ passloci, ]
+  }
 
   # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
   newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
 
-  newvcfR
+  return(newvcfR)
 
 }
 
