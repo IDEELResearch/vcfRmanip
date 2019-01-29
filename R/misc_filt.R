@@ -34,7 +34,7 @@ vcfR2SubsetChrom <- function(vcfRobject = NULL,
 
 #' @title vcfR2SubsetChrom
 #'
-#' @description Produces a subsetted \code{vcfR} based on chromosome
+#' @description Produces a subsetted \code{vcfR} based on chromosome. Note the chromosome name must be contained in the column \code{seqname}
 #'
 #' @export
 
@@ -53,11 +53,9 @@ vcfR2SubsetChromPos <- function(vcfRobject = NULL,
     return(temp)
 
   }))
+
   chromposlong$keep <- "Y"
-  vcftidy <- vcfR2tidy(vcfRobject)
-
-
-  passloci <- vcftidy$fix %>%
+  passloci <- vcfR::getFIX(vcfRobject) %>%
     dplyr::select(CHROM, POS) %>%
     dplyr::left_join(x=., y=chromposlong, by=c("CHROM", "POS")) %>%
     dplyr::mutate(keep = !is.na(keep)) %>%
@@ -111,9 +109,7 @@ vcffilter_ChromPos <- function(vcfRobject = NULL,
 
   }))
 
-  vcftidy <- vcfR2tidy(vcfRobject)
-
-  passloci <- vcftidy$fix %>%
+  passloci <- vcfR::getFIX(vcfRobject) %>%
     dplyr::select(CHROM, POS) %>%
     dplyr::left_join(x=., y=chromposlong, by=c("CHROM", "POS")) %>%
     dplyr::mutate(keep = ifelse(is.na(remove), TRUE, FALSE)) %>%
