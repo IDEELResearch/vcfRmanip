@@ -116,15 +116,22 @@ vcffilter_ChromPos <- function(vcfRobject = NULL,
     dplyr::select(keep) %>%
     as.matrix(.)
 
-  meta <- append(vcfRobject@meta, paste("##Additional Filters for excluding hypervariable regions determined by user"))
-  fix <- vcfRobject@fix[ passloci, ]
-  gt <- vcfRobject@gt[ passloci, ]
+
+  if(nrow(passloci) == 0){
+    return(NA)
+    warning("There were no variants found in the requested region(s)")
+  } else{
+
+    meta <- append(vcfRobject@meta, paste("##Additional Filters for excluding hypervariable regions determined by user"))
+    fix <- vcfRobject@fix[ passloci, ]
+    gt <- vcfRobject@gt[ passloci, ]
 
 
-  # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
-  newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
+    # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
+    newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
 
-  newvcfR
+    return(newvcfR)
+  }
 
 }
 
