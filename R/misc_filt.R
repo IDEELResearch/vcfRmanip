@@ -280,3 +280,64 @@ gtmat012 <- function(vcfRobj){
   return(gtmatrix)
 
 }
+
+
+
+
+
+
+
+
+
+#' @title Remove heterozygote calls and make monoclonal
+#'
+#' @description Read vcfR object and code all het sites in GT as missing
+#' @export
+
+vcfR2nohetsmonoclonal_gt <- function(vcfRobj){
+
+  # -----------------------------------------------------
+  # determine ploidy to determine genotype numeric placeholder
+  #------------------------------------------------------
+  if(stringr::str_detect(vcfR::extract.gt(vcfRobj)[1,2], "\\|")){ # grab first site
+    stop("This tool does not support phased vcfs")
+  } else if(stringr::str_detect(vcfR::extract.gt(vcfRobj)[1,2], "\\/")) {
+    if(length( stringr::str_split(vcfR::extract.gt(vcfRobj)[1,2], "\\/", simplify = T)) > 2){
+      stop("You have a ploidy that is less than 1 or greater than 3, which cannot be accomodated by this tool")
+    } else{
+      gtmatrix <- vcfR::extract.gt(vcfRobj, element='GT', as.numeric=F) # numeric as T doesn't parse 0/1 correctly
+      hetmatrix <- as.matrix(gtmatrix == "0/1",
+                            nrow = nrow(gtmatrix), ncol=ncol(gtmatrix))
+
+      hetmatrix <- cbind(F, hetmatrix)
+    }
+  } else {
+
+    stop("You passed a monoclonal file.")
+  }
+
+
+
+
+  vcfRobj@gt[hetmatrix] <- NA
+
+  for(i in 2:ncol(vcfRobj@gt)){
+    for(j in 1:nrow(vcfRobj@gt)){
+      vcfRobj@gt[j,i] <- stringr::str_replace(vcfRobj@gt[j,i], "0/0", "0")
+      vcfRobj@gt[j,i] <- stringr::str_replace(vcfRobj@gt[j,i], "1/1", "1")
+    }
+  }
+
+
+  fix <- as.matrix(vcfR::getFIX(vcfRobj, getINFO = T))
+  gt <- as.matrix(vcfRobj@gt)
+  meta <- append(vcfRobj@meta, paste("##Removed all het calls and made haploid"))
+
+  # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
+  newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
+
+  return(newvcfR)
+}
+
+
+
