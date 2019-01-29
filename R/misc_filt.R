@@ -32,11 +32,60 @@ vcfR2SubsetChrom <- function(vcfRobject = NULL,
 
 
 
-#' @title vcfR2vcffilter_CHROMPOS
+#' @title vcfR2SubsetChrom
+#'
+#' @description Produces a subsetted \code{vcfR} based on chromosome
+#'
+#' @export
+
+vcfR2SubsetChromPos <- function(vcfRobject = NULL,
+                             chromposbed = NULL){
+
+  colnames(chromposbed) <- tolower(colnames(chromposbed))
+  chromposbed <- split(chromposbed, f=factor(chromposbed$geneid))
+  chromposlong <- do.call("rbind", parallel::mclapply(chromposbed, function(dat){
+
+    i <- length(seq(from=dat$start, to=dat$end))
+
+    temp <- tibble::tibble(CHROM = rep(dat$seqname, i),
+                           POS = seq(from=dat$start, to=dat$end)
+    )
+    return(temp)
+
+  }))
+  chromposlong$keep <- "Y"
+  vcftidy <- vcfR2tidy(vcfRobject)
+
+
+  passloci <- vcftidy$fix %>%
+    dplyr::select(CHROM, POS) %>%
+    dplyr::left_join(x=., y=chromposlong, by=c("CHROM", "POS")) %>%
+    dplyr::mutate(keep = !is.na(keep)) %>%
+    dplyr::select(keep) %>%
+    as.matrix(.)
+
+
+
+
+  meta <- append(vcfRobject@meta, paste("##Chromsome and Positiion were subsetted by user using vcfR2SubsetChromPos"))
+  fix <- vcfRobject@fix[ passloci, ]
+  gt <- vcfRobject@gt[ passloci, ]
+
+
+  # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
+  newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
+
+  newvcfR
+
+}
+
+
+#' @title vcffilter_ChromPos
 #'
 #' @description Produces a subsetted \code{vcfR} with specific loci excluded as determined \code{chromposdf}.
 #'
-#' @param chromposdf an dataframe that contains loci to be excluded and has been produced by \code{GFF2VariantAnnotation_Short}
+#' @param chromposdf an dataframe that contains loci to be excluded and is in the form of a bedfile or has
+#' been produced by \code{GFF2VariantAnnotation_Short}
 #'
 #'
 #' @export
@@ -44,11 +93,13 @@ vcfR2SubsetChrom <- function(vcfRobject = NULL,
 #-----------------------------------------------------
 # Filter VCF based on given positions among the chromosomes
 #------------------------------------------------------
-vcffilter_CHROMPOS <- function(vcfRobject = NULL,
-                               chromposdf = NULL # this is expected to be from GFF2VariantAnnotation_Short
+vcffilter_ChromPos <- function(vcfRobject = NULL,
+                               chromposbed = NULL
 ){
-  chromposdflist = split(chromposdf, f=factor(chromposdf$GeneID))
-  chromposlong <- do.call("rbind", parallel::mclapply(chromposdflist, function(dat){
+
+  colnames(chromposbed) <- tolower(colnames(chromposbed))
+  chromposbed <- split(chromposbed, f=factor(chromposbed$geneid))
+  chromposlong <- do.call("rbind", parallel::mclapply(chromposbed, function(dat){
 
     i <- length(seq(from=dat$start, to=dat$end))
 
@@ -59,7 +110,6 @@ vcffilter_CHROMPOS <- function(vcfRobject = NULL,
     return(temp)
 
   }))
-
 
   vcftidy <- vcfR2tidy(vcfRobject)
 
