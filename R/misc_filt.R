@@ -55,7 +55,7 @@ vcfR2SubsetChromPos <- function(vcfRobject = NULL,
   }))
 
   chromposlong$keep <- "Y"
-  passloci <- vcfR::getFIX(vcfRobject) %>%
+  passloci <- tibble::as_tibble(vcfR::getFIX(vcfRobject)) %>%
     dplyr::select(CHROM, POS) %>%
     dplyr::left_join(x=., y=chromposlong, by=c("CHROM", "POS")) %>%
     dplyr::mutate(keep = !is.na(keep)) %>%
@@ -109,7 +109,7 @@ vcffilter_ChromPos <- function(vcfRobject = NULL,
 
   }))
 
-  passloci <- vcfR::getFIX(vcfRobject) %>%
+  passloci <- tibble::as_tibble(vcfR::getFIX(vcfRobject)) %>%
     dplyr::select(CHROM, POS) %>%
     dplyr::left_join(x=., y=chromposlong, by=c("CHROM", "POS")) %>%
     dplyr::mutate(keep = ifelse(is.na(remove), TRUE, FALSE)) %>%
