@@ -19,18 +19,16 @@ vcfR2thap <- function(vcfRobj){
   # -----------------------------------------------------
   # determine ploidy to determine genotype numeric placeholder
   #------------------------------------------------------
-  if(stringr::str_detect(vcfR::extract.gt(vcfRobj)[1,2], "\\|")){ # grab first site
+
+  if(any(stringr::str_detect(vcfR::extract.gt(vcfRobj), "\\|"), na.rm=T)){ # grab first site
     stop("This tool does not support phased vcfs. See vcfR extract.haps for this functionality")
-  } else if(stringr::str_detect(vcfR::extract.gt(vcfRobj)[1,2], "\\/")) {
-    if(length( stringr::str_split(vcfR::extract.gt(vcfRobj)[1,2], "\\/", simplify = T)) > 2){
-      stop("You have a ploidy that is less than 1 or greater than 3, which cannot be accomodated by this tool")
-    } else{
+  } else if(any(stringr::str_detect(vcfR::extract.gt(vcfRobj), "\\/"), na.rm=T)) {
       gtmatrix <- vcfR::extract.gt(vcfRobj, element='GT', as.numeric=F) # numeric as T doesn't parse 0/1 correctly
       gtmatrix[gtmatrix == "0/0"] <- 0
       gtmatrix[gtmatrix == "0/1"] <- NA
       gtmatrix[gtmatrix == "1/1"] <- 1
       gtmatrix[is.na(gtmatrix)] <- NA
-    }
+
   } else {
 
     gtmatrix <- vcfR::extract.gt(vcfRobj, element='GT', as.numeric=T)
