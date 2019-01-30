@@ -100,7 +100,8 @@ vcfR2SubsetChromPos <- function(vcfRobject = NULL,
 #'
 #' @param chromposdf an dataframe that contains loci to be excluded and is in the form of a bedfile or has
 #' been produced by \code{GFF2VariantAnnotation_Short}
-#'
+#' @details chromposdf must be a tibble with columns: seqname (where chromomsome information is stored), start, end, geneid. The logic
+#' behding the "seqname" is allow users to carry around chromosome names that may be different in the bed file and the vcf
 #'
 #' @export
 
