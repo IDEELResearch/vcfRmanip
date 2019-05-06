@@ -10,7 +10,7 @@ vcfR2thap <- function(vcfRobj){
   # -----------------------------------------------------
   # Error catch
   #------------------------------------------------------
-  if(!identical(vcfRobj, vcfRobj[vcfR::is.biallelic(vcfRobj)])){
+  if(!identical(vcfRobj, vcfRobj[vcfR::is.biallelic(vcfRobj),])){
     stop("VCF must be biallelic for this to work.")
   }
 
