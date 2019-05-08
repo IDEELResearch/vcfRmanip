@@ -1,3 +1,27 @@
+#' @title select_samples
+#' @description Select samples from a \code{vcfR}
+#' @param smplvctr vector; A character vector that corresponds to the samples that should be extracted
+#' @export
+
+#-----------------------------------------------------
+# Filter VCF based on given positions among the chromosomes
+#------------------------------------------------------
+select_samples <- function(vcfRobject = NULL,
+                           smplvctr = NULL
+){
+
+  meta <- append(vcfRobject@meta, paste("##Specific samples were selected using vcfRmanip"))
+  fix <- vcfRobject@fix
+  gt <- vcfRobject@gt[ , c("FORMAT", smplvctr)]
+
+  # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
+  newvcfR <- new("vcfR", meta = meta, fix = vcfRobject@fix, gt = gt)
+
+  return(newvcfR)
+}
+
+
+
 #' @title vcfR2SubsetChrom
 #'
 #' @description Produces a subsetted \code{vcfR} based on chromosome
