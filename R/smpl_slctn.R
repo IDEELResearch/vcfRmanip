@@ -23,6 +23,7 @@ select_samples <- function(vcfRobject = NULL,
 
 #' @title calc_loci_missingness_by_smpl
 #' @description Calculate the proportion of the loci that are missing by samples from a \code{vcfR} object
+#' @param vcfRobject S4 object; A vcf that has been converted to a \code{vcfR} object
 #' @export
 
 #-----------------------------------------------------
