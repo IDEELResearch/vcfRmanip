@@ -13,8 +13,9 @@ select_samples <- function(vcfRobject = NULL,
   fix <- vcfRobject@fix
   smpls <- vcfRobject@gt[ , 2:ncol(vcfRobject@gt)]
 
-  gt <- vcfRobject@gt[ , c("FORMAT", smpls %in% smplvctr)]
-
+  gt <- vcfRobject@gt[ , c(TRUE, smpls %in% smplvctr)]
+  # first true for FORMAT column
+  
   # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
   newvcfR <- new("vcfR", meta = meta, fix = vcfRobject@fix, gt = gt)
 
