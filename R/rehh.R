@@ -27,14 +27,14 @@ vcfR2thap <- function(vcfRobj){
       gtmatrix[gtmatrix == "0/0"] <- 0
       gtmatrix[gtmatrix == "0/1"] <- NA
       gtmatrix[gtmatrix == "1/1"] <- 1
-      gtmatrix[is.na(gtmatrix)] <- NA
+      gtmatrix[is.na(gtmatrix)] <- NA # not needed but to be explicit
 
   } else {
 
     gtmatrix <- vcfR::extract.gt(vcfRobj, element='GT', as.numeric=T)
-    gtmatrix[gtmatrix == 0] <- 0
-    gtmatrix[gtmatrix == 1] <- 1
-    gtmatrix[is.na(gtmatrix)] <- NA
+    gtmatrix[gtmatrix == 0] <- 0 # not needed but to be explicit
+    gtmatrix[gtmatrix == 1] <- 1 # not needed but to be explicit
+    gtmatrix[is.na(gtmatrix)] <- NA # not needed but to be explicit
   }
 
   thap <- matrix(NA, nrow(gtmatrix), ncol(gtmatrix))

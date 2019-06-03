@@ -11,7 +11,9 @@ select_samples <- function(vcfRobject = NULL,
 
   meta <- append(vcfRobject@meta, paste("##Specific samples were selected using vcfRmanip"))
   fix <- vcfRobject@fix
-  gt <- vcfRobject@gt[ , c("FORMAT", smplvctr)]
+  smpls <- vcfRobject@gt[ , 2:ncol(vcfRobject@gt)]
+
+  gt <- vcfRobject@gt[ , c("FORMAT", smpls %in% smplvctr)]
 
   # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
   newvcfR <- new("vcfR", meta = meta, fix = vcfRobject@fix, gt = gt)
