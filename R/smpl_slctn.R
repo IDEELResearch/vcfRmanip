@@ -11,11 +11,10 @@ select_samples <- function(vcfRobject = NULL,
 
   meta <- append(vcfRobject@meta, paste("##Specific samples were selected using vcfRmanip"))
   fix <- vcfRobject@fix
-  smpls <- vcfRobject@gt[ , 2:ncol(vcfRobject@gt)]
-
-  gt <- vcfRobject@gt[ , c(TRUE, smpls %in% smplvctr)]
+  keep <- c(TRUE, colnames( vcfRobject@gt[,2:ncol(vcfRobject@gt)] ) %in% smplvctr)
+  gt <- vcfRobject@gt[ , keep]
   # first true for FORMAT column
-  
+
   # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
   newvcfR <- new("vcfR", meta = meta, fix = vcfRobject@fix, gt = gt)
 
