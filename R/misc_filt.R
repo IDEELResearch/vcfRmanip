@@ -128,6 +128,8 @@ vcffilter_ChromPos <- function(vcfRobject = NULL,
 
   }))
 
+  # in case overlapping genes or geneids
+  chromposlong <- chromposlong[!duplicated(chromposlong), ]
   chromposlong$POS <- as.character(chromposlong$POS)
 
   passloci <- tibble::as_tibble(vcfR::getFIX(vcfRobject)) %>%
