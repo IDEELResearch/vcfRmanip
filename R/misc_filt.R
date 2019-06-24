@@ -260,7 +260,7 @@ vcfR2segsites_gt <- function(vcfRobj){
   meta <- append(vcfRobj@meta, paste("##Additional Filters for segregating sites, such that GT call must be segregating within samples"))
 
   # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
-  newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
+  newvcfR <- new("vcfR", meta = meta, fix = fix, gt = vcfRobj@gt)
 
   return(newvcfR)
 }
