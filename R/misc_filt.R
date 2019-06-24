@@ -252,12 +252,11 @@ vcfR2segsites_gt <- function(vcfRobj){
   if(sum(segsites) == 1){
     vcfRobj@gt <- t(vcfRobj@gt[segsites,])
   } else {
-    vcfRobj@gt <- vcfRobj@gt[segsites,]
+    vcfRobj@gt <-  vcfRobj@gt[segsites,]
   }
 
 
   fix <- as.matrix(vcfR::getFIX(vcfRobj, getINFO = T)[segsites,])
-  gt <- as.matrix(vcfRobj@gt)
   meta <- append(vcfRobj@meta, paste("##Additional Filters for segregating sites, such that GT call must be segregating within samples"))
 
   # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
