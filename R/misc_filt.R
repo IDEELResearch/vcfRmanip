@@ -249,7 +249,12 @@ vcfR2segsites_gt <- function(vcfRobj){
   }
   )
 
-  vcfRobj@gt <- vcfRobj@gt[segsites,]
+  if(sum(segsites) == 1){
+    vcfRobj@gt <- t(vcfRobj@gt[segsites,])
+  } else {
+    vcfRobj@gt <- vcfRobj@gt[segsites,]
+  }
+
 
   fix <- as.matrix(vcfR::getFIX(vcfRobj, getINFO = T)[segsites,])
   gt <- as.matrix(vcfRobj@gt)
