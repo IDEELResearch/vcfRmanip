@@ -6,7 +6,7 @@
 #' @export
 
 
-bivcfR2removesingletons_wsaf <- function(vcfRobject = NULL, minsampleswithcoverage = 1){
+vcfR2removepoorcovloci_dp <- function(vcfRobject = NULL, minsampleswithcoverage = 1){
 
 
   dp <- vcfR::extract.gt(vcfRobject, element = "DP", as.numeric = T)
