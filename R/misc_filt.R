@@ -1,3 +1,30 @@
+#' @title vcfR2removepoorcovloci_dp
+#'
+#' @description Read vcfR object to remove loci where too few samples have coverage
+#' @param vcfRobject vcfR; a vcfR object
+#' @param minsampleswithcoverage numeric; the minimum number of samples with coverage \(i.e. DP > 0) needed for a loci to be kept
+#' @export
+
+
+bivcfR2removesingletons_wsaf <- function(vcfRobject = NULL, minsampleswithcoverage = 1){
+
+
+  dp <- vcfR::extract.gt(vcfRobject, element = "DP", as.numeric = T)
+  dpnot0counts <- apply(dp, 1, function(x){sum(x != 0)})
+  keeploci <- dpnot0counts >= minsampleswithcoverage
+
+  vcfRobject@gt <- vcfRobject@gt[keeploci,]
+
+  fix <- as.matrix(vcfR::getFIX(vcfRobject, getINFO = T)[keeploci , ])
+  gt <- as.matrix(vcfRobject@gt)
+  meta <- append(vcfRobject@meta, "##Additional Filters for missingness by loci based on DP")
+
+  # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
+  newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
+
+  return(newvcfR)
+
+}
 
 
 #' @title vcfR2SubsetChrom
