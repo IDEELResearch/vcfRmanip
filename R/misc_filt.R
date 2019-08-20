@@ -160,19 +160,21 @@ vcffilter_ChromPos <- function(vcfRobject = NULL,
 
 
 
-#' @title vcfR2segsites_wsaf
+#' @title bivcfR2segsites_wsaf
 #'
-#' @description Read vcfR object to segregated sites based on wsaf
+#' @description Read biallelic vcfR object to segregated sites based on wsaf
+#' @param vcfRobject vcfR; a biallelic vcfR object
+#' @param err numeric; the difference between the max WSAF and min WSAF among samples being compared that is tolerated as not being a segregating site.
 #' @export
 
 
-vcfR2segsites_wsaf <- function(vcfRobject = NULL, err = 0.025){
-  vcf <- vcfRobject # legacy
-  if(!identical(vcf, vcf[vcfR::is.biallelic(vcf)])){
+bivcfR2segsites_wsaf <- function(vcfRobject = NULL, err = 0.025){
+
+  if(!identical(vcfRobject, vcfRobject[vcfR::is.biallelic(vcfRobject)])){
     stop("VCF must be biallelic for this to work.")
   }
 
-  ad <- vcfR::extract.gt(vcf, element = "AD")
+  ad <- vcfR::extract.gt(vcfRobject, element = "AD")
   refad <- masplit(ad, record=1, sort=0, decreasing = 0)
   altad <- masplit(ad, record=2, sort=0, decreasing = 0)
 
