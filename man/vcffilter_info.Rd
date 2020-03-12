@@ -4,10 +4,19 @@
 \alias{vcffilter_info}
 \title{vcfR2vcffilter_INFO}
 \usage{
-vcffilter_info(vcfRobject = NULL, infoMQ = NULL, infoQD = NULL,
-  infoSOR = NULL, infoAF = NULL, infoDP = NULL, infoFS = NULL,
-  infoMQRankSum = NULL, infoReadPosRankSum = NULL, biallelic = TRUE,
-  SNPs = TRUE)
+vcffilter_info(
+  vcfRobject = NULL,
+  infoMQ = NULL,
+  infoQD = NULL,
+  infoSOR = NULL,
+  infoAF = NULL,
+  infoDP = NULL,
+  infoFS = NULL,
+  infoMQRankSum = NULL,
+  infoReadPosRankSum = NULL,
+  biallelic = TRUE,
+  SNPs = TRUE
+)
 }
 \arguments{
 \item{infoDP}{options is based on a percentile cutoff. As a result, if you specify 0.1, the top and bottom 10th read depth percentiles will be excluded}

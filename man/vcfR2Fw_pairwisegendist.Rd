@@ -4,8 +4,12 @@
 \alias{vcfR2Fw_pairwisegendist}
 \title{vcfR2Fw_pairwisegendist}
 \usage{
-vcfR2Fw_pairwisegendist(vcfRobject = NULL, biallelicsnps = TRUE,
-  segsites = 0.001, window = 50)
+vcfR2Fw_pairwisegendist(
+  vcfRobject = NULL,
+  biallelicsnps = TRUE,
+  segsites = 0.001,
+  window = 50
+)
 }
 \description{
 vcfR2Fw_pairwisegendist

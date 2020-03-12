@@ -7,5 +7,5 @@
 vcfR2thap(vcfRobj)
 }
 \description{
-rehh liftover for vcfR
+
 }

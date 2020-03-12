@@ -4,9 +4,15 @@
 \alias{vcffilter_format}
 \title{vcfR2vcffilter_FORMAT}
 \usage{
-vcffilter_format(vcfRobject = NULL, formatGQ = NULL, formatDP = NULL,
-  formatSP = NULL, prop.loci.missing = NULL, biallelic = TRUE,
-  SNPs = TRUE)
+vcffilter_format(
+  vcfRobject = NULL,
+  formatGQ = NULL,
+  formatDP = NULL,
+  formatSP = NULL,
+  prop.loci.missing = NULL,
+  biallelic = TRUE,
+  SNPs = TRUE
+)
 }
 \arguments{
 \item{prop.loci.missing}{Given a loci, how many samples can have missing information before that loci is dropped}

@@ -4,8 +4,13 @@
 \alias{vcfR2LDfiltered}
 \title{vcfR2LDfiltered}
 \usage{
-vcfR2LDfiltered(vcffile = NULL, vcfR = NULL,
-  genautocorrresult = NULL, threshDist = 1000, biallelicsnps = TRUE)
+vcfR2LDfiltered(
+  vcffile = NULL,
+  vcfR = NULL,
+  genautocorrresult = NULL,
+  threshDist = 1000,
+  biallelicsnps = TRUE
+)
 }
 \arguments{
 \item{vcffile}{A variant call file (vcf) path. This VCF will be converted to an object of class \code{vcfR}.}

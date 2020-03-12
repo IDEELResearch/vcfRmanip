@@ -4,8 +4,7 @@
 \alias{vcfR2removepoorcovloci_dp}
 \title{vcfR2removepoorcovloci_dp}
 \usage{
-vcfR2removepoorcovloci_dp(vcfRobject = NULL,
-  minsampleswithcoverage = 1)
+vcfR2removepoorcovloci_dp(vcfRobject = NULL, minsampleswithcoverage = 1)
 }
 \arguments{
 \item{vcfRobject}{vcfR; a vcfR object}
