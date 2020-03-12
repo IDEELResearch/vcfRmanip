@@ -4,7 +4,7 @@
 #'
 #' @description Converts a vcfR object to a "transposed" haplotype object for use in other packages (i.e. \{rehh})
 #'
-#'
+#' @export
 
 vcfR2thap <- function(vcfRobj){
   # -----------------------------------------------------

@@ -1,13 +1,13 @@
 Package: vcfRmanip
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Basic functions for manipulating VCFs within the VCFR object/R environment
+Version: 0.5
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Nicholas",
+           family = "Brazeau",
            role = c("aut", "cre"),
-           email = "first.last@example.com")
-Description: What the package does (one paragraph).
-License: What license it uses
+           email = "nbrazeau@med.unc.edu")
+Description: The purpose of this package is to provide user with basic functions to manipulate VCF files. This package is not meant to be comprehensive.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1

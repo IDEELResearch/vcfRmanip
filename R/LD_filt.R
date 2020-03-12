@@ -12,7 +12,9 @@
 #' @export
 #'
 
-# Calculate pairwise correlation matrix between observations. Input is a matrix with n rows corresponding to n multivariate measurements, output is a n-by-n correlation matrix. NA values are imputed as the mean.
+# Calculate pairwise correlation matrix between observations.
+# Input is a matrix with n rows corresponding to n multivariate measurements,
+# output is a n-by-n correlation matrix. NA values are imputed as the mean.
 
 corMat <- function(m) {
   tol <- 1e-9 # tolerance for denominator if AF become the same
