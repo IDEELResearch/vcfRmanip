@@ -122,6 +122,7 @@ vcfR2SubsetChromPos <- function(vcfRobject = NULL,
 #' @param write_new_meta boolean; Flag for whether or not the original vcf metadata should be included.
 #' @details If write_new_meta is set to False, a simplified vcf header will be returned (just file format)
 #' @return List of vcfRobj
+#' @export
 
 vcf_loci_splitter <- function(vcfRobj, write_new_meta = F){
 
