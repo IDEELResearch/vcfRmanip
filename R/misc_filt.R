@@ -26,101 +26,27 @@ vcfR2removepoorcovloci_dp <- function(vcfRobject = NULL, minsampleswithcoverage 
 
 }
 
-
-#' @title vcfR2SubsetChrom
-#'
-#' @description Produces a subsetted \code{vcfR} based on chromosome
-#'
+#' @title Filter VCF based on given loci missingness by sample
+#' @description Calculate the proportion of the loci that are missing by samples from a \code{vcfR} object
+#' @param vcfRobject S4 object; A vcf that has been converted to a \code{vcfR} object
 #' @export
+calc_loci_missingness_by_smpl <- function(vcfRobject = NULL){
 
-vcfR2SubsetChrom <- function(vcfRobject = NULL,
-                             chromvect = NULL){
-
-  vcftidy <- vcfR2tidy(vcfRobject)
-
-  passchrom <- vcftidy$fix %>%
-    dplyr::select(CHROM) %>%
-    dplyr::mutate( keep = ifelse(CHROM %in% chromvect, TRUE, FALSE) ) %>%
-    dplyr::select(keep) %>%
-    as.matrix(.)
-
-
-
-  meta <- append(vcfRobject@meta, paste("##Chromsomes were subsetted"))
-  fix <- vcfRobject@fix[ passchrom, ]
-  gt <- vcfRobject@gt[ passchrom, ]
-
-
-  # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
-  newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
-
-  newvcfR
-
-}
-
-
-
-
-#' @title vcfR2SubsetChromPos
-#'
-#' @description Produces a subsetted \code{vcfR} based on chromosome. Note the chromosome name must be contained in the column \code{seqname}
-#'
-#' @export
-
-vcfR2SubsetChromPos <- function(vcfRobject = NULL,
-                             chromposbed = NULL){
-
-  colnames(chromposbed) <- tolower(colnames(chromposbed))
-  chromposbed <- split(chromposbed, f=factor(chromposbed$geneid))
-  chromposlong <- do.call("rbind", parallel::mclapply(chromposbed, function(dat){
-
-    i <- length(seq(from=dat$start, to=dat$end))
-
-    temp <- tibble::tibble(CHROM = rep(dat$seqname, i),
-                           POS = seq(from=dat$start, to=dat$end)
+  gt <- vcfR::extract.gt(vcfRobject, element = "GT")
+  ret <- gt %>% as.data.frame(.) %>%
+    tidyr::gather(., key = "sample", value = "gt") %>%
+    dplyr::group_by(sample) %>%
+    dplyr::summarise(
+      n = n(),
+      misscount = sum(is.na(gt)),
+      missprop = sum(is.na(gt))/n
     )
-    return(temp)
 
-  }))
-
-  chromposlong$keep <- "Y"
-  chromposlong$POS <- as.character(chromposlong$POS)
-  passloci <- tibble::as_tibble(vcfR::getFIX(vcfRobject)) %>%
-    dplyr::select(CHROM, POS) %>%
-    dplyr::left_join(x=., y=chromposlong, by=c("CHROM", "POS")) %>%
-    dplyr::mutate(keep = !is.na(keep)) %>%
-    dplyr::select(keep) %>%
-    as.matrix(.)
-
-
-  meta <- append(vcfRobject@meta, paste("##Chromsome and Positiion were subsetted by user using vcfR2SubsetChromPos"))
-  #......
-  # catch instance of 1
-  #......
-  if(sum(passloci) == 1){
-    # going to do some extra work so attributes are all correct for matrix that has to go into vcfR class
-    fix <- matrix(vcfRobject@fix[ passloci, ], nrow=1)
-    fix <- as.data.frame(fix)
-    colnames(fix) <- colnames(vcfRobject@fix)
-    fix <- as.matrix(fix)
-
-
-    gt <- matrix(vcfRobject@gt[ passloci, ], nrow=1)
-    gt <- as.data.frame(gt)
-    colnames(gt) <- colnames(vcfRobject@gt)
-    gt <- as.matrix(gt)
-
-  } else {
-    fix <- vcfRobject@fix[ passloci, ]
-    gt <- vcfRobject@gt[ passloci, ]
-  }
-
-  # Setting class based off of vcfR documentation https://github.com/knausb/vcfR/blob/master/R/AllClass.R
-  newvcfR <- new("vcfR", meta = meta, fix = fix, gt = gt)
-
-  return(newvcfR)
+  return(ret)
 
 }
+
+
 
 
 #' @title vcffilter_ChromPos
