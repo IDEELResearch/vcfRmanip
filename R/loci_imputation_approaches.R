@@ -12,7 +12,7 @@ EB_for_wsaf <- function(vcfRobj, imputemissing = T, seed = 48){
   #..............................................................
   # catches
   #..............................................................
-  if(!identical(vcfRobj, vcfRobj[vcfR::is.biallelic(vcfRobj)])){
+  if(!identical(vcfRobj, vcfRobj[vcfR::is.biallelic(vcfRobj),])){
     stop("VCF must be biallelic for this to work.")
   }
 
@@ -102,7 +102,7 @@ binomial_draw_gt_imputation <- function(vcfRobj, seed = 48){
   #..............................................................
   # catches
   #..............................................................
-  if(!identical(vcfRobj, vcfRobj[vcfR::is.biallelic(vcfRobj)])){
+  if(!identical(vcfRobj, vcfRobj[vcfR::is.biallelic(vcfRobj),])){
     stop("VCF must be biallelic for this to work.")
   }
 
