@@ -48,10 +48,10 @@ EB_for_wsaf <- function(vcfRobj, imputemissing = T, seed = 48){
     } else {
       dat <- ad/dp
       dat <- dat[!is.na(dat)]
-     ret <- fitdistrplus::fitdist(data =  dat,
-                                  distr = "beta",
-                                  method = "mme", # use method of moments, which may be a bit more robust
-                                  start = list(shape1 = 0.5, shape2 = 0.5))
+      ret <- fitdistrplus::fitdist(data =  dat,
+                                   distr = "beta",
+                                   method = "mme", # use method of moments, which may be a bit more robust
+                                   start = list(shape1 = 0.5, shape2 = 0.5))
 
 
       alpha <- ret$estimate[["shape1"]]
@@ -73,8 +73,8 @@ EB_for_wsaf <- function(vcfRobj, imputemissing = T, seed = 48){
   # get sample lvl "posterior" (shrinkage)
   #..................
   shrink_nrwsaf <- function(ad, dp, EB.beta.param){
-   shrunk_nrwsaf <-  (ad + EB.beta.param[["alpha"]]) /  (dp + EB.beta.param[["alpha"]] + EB.beta.param[["beta"]] )
-   return(shrunk_nrwsaf)
+    shrunk_nrwsaf <-  (ad + EB.beta.param[["alpha"]]) /  (dp + EB.beta.param[["alpha"]] + EB.beta.param[["beta"]] )
+    return(shrunk_nrwsaf)
   }
 
   shrunken_nrwsaf <- mapply(shrink_nrwsaf,
@@ -132,47 +132,53 @@ binomial_draw_gt_imputation <- function(vcfRobj, seed = 48){
   #..............................................................
   # find allele counts and impute
   #..............................................................
-  gt012.refallelecounts <- apply(gt012.refallelecounts, 1, function(x){
-    return( mean(x == 0, na.rm = T) )
-  })
-
   # find missing
   loci.missing <- apply(gt012, 1, function(x){return(sum(is.na(x)))})
+  if (loci.missing > 0) {
+    gt012.refallelecounts <- apply(gt012.refallelecounts, 1, function(x){
+      return( mean(x == 0, na.rm = T) )
+    })
 
-  # draw from binaomial distribution if missing
-  imputation.loci <- mapply(function(n.draws, success){
-    ret <- rbinom(n = n.draws, size = 1, prob = success)
-    ret <- gsub("0", "2", ret) # if fail, alt allele
-    ret <- gsub("1", "0", ret) # if success, ref allele
-    ret <- as.numeric(ret)
-    return(ret)
-  }, loci.missing, gt012.refallelecounts)
 
-  #..............................................................
-  # now put back in loci draws
-  #..............................................................
-  # not, we went by rows but R will go by columns to fill in
-  # so can't do simple is.na drop in
-  #
-  # speed this up if case of one loci
-  if (is.vector(gt012.refallelecounts)) {
+    # draw from binaomial distribution if missing
+    imputation.loci <- mapply(function(n.draws, success){
+      ret <- rbinom(n = n.draws, size = 1, prob = success)
+      ret <- gsub("0", "2", ret) # if fail, alt allele
+      ret <- gsub("1", "0", ret) # if success, ref allele
+      ret <- as.numeric(ret)
+      return(ret)
+    }, loci.missing, gt012.refallelecounts)
 
-    gt012.imp <- gt012
-    gt012.imp[is.na(gt012.imp)] <- imputation.loci
+    #..............................................................
+    # now put back in loci draws
+    #..............................................................
+    # not, we went by rows but R will go by columns to fill in
+    # so can't do simple is.na drop in
+    #
+    # speed this up if case of one loci
+    if (is.vector(gt012.refallelecounts)) {
 
+      gt012.imp <- gt012
+      gt012.imp[is.na(gt012.imp)] <- imputation.loci
+
+    } else {
+
+      gt012.imp <- split(gt012, f = 1:nrow(gt012))
+      gt012.imp <- mapply(function(gt, imp){
+        gt[is.na(gt)] <- unlist(imp)
+        return(gt)
+      }, gt012.imp, imputation.loci, SIMPLIFY = F) %>%
+        do.call("rbind.data.frame", .)
+
+    }
+
+    # out
+    colnames(gt012.imp) <- smplnames
   } else {
-
-    gt012.imp <- split(gt012, f = 1:nrow(gt012))
-    gt012.imp <- mapply(function(gt, imp){
-      gt[is.na(gt)] <- unlist(imp)
-      return(gt)
-    }, gt012.imp, imputation.loci, SIMPLIFY = F) %>%
-      do.call("rbind.data.frame", .)
-
+    # out
+    gt012.imp <- gt012
   }
 
-  # out
-  colnames(gt012.imp) <- smplnames
   return(gt012.imp)
 }
 
