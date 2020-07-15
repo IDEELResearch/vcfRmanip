@@ -3,7 +3,7 @@
 export(EB_for_wsaf)
 export(GFF2VariantAnnotation_Short)
 export(NRAFdf2Fw_pairwisegendist)
-export(binomial_draw_gt_imputation)
+export(binomial_draw_gtmat012_imputation)
 export(bivcfR2segsites_wsaf)
 export(calc_loci_missingness_by_smpl)
 export(corMat)

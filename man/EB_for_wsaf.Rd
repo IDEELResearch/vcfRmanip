@@ -7,7 +7,9 @@
 EB_for_wsaf(vcfRobj, imputemissing = T, seed = 48)
 }
 \arguments{
-\item{imputemissing}{boolean; Should imputation for missing loci be performed}
+\item{imputemissing}{boolean; Should imputation for missing loci be performed, if so take the mean of the loci function via the beta distribution}
+
+\item{seed}{numeric; global seed to be called before bayes shrinkage}
 
 \item{vcfRobject}{vcfR; a vcfR object}
 }

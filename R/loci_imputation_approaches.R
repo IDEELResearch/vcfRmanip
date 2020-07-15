@@ -1,14 +1,15 @@
 #' @title Perform Empirical Bayes Shrinkage, Loci-by-Loci
 #'
 #' @param vcfRobject vcfR; a vcfR object
-#' @param imputemissing boolean; Should imputation for missing loci be performed
+#' @param seed numeric; global seed to be called before bayes shrinkage
+#' @param imputemissing boolean; Should imputation for missing loci be performed, if so take the mean of the loci function via the beta distribution
 #' @return matrix of wsaf (non-referent alelle) shrunk by a beta-binomial empirical bayes model
 #' @details Loci must all be biallelic. Imputation for missing loci is performed by drawing a random number from the beta-binomial model
 #' @details Note, optim will fail
 #' @export
 
 EB_for_wsaf <- function(vcfRobj, imputemissing = T, seed = 48){
-
+  set.seed(seed)
   #..............................................................
   # catches
   #..............................................................
@@ -82,14 +83,35 @@ EB_for_wsaf <- function(vcfRobj, imputemissing = T, seed = 48){
                             dp = dp.list,
                             EB.beta.param = EB.beta.params)
 
+  #......................
+  # imputation -- based on mean
+  #......................
+  if (imputemissing) {
+    # imput func
+    imp_draw <- function(gtvec, betaparams) {
+      gtvec[is.na(gtvec)] <- betaparams[["alpha"]] /  (betaparams[["alpha"]] + betaparams[["beta"]])
+      return(gtvec)
+    }
+
+    # split by loci
+    shrunken_nrwsaf.list <- split(shrunken_nrwsaf, colnames(shrunken_nrwsaf))
+
+    shrunken_nrwsaf <- mapply(imp_draw,
+                              shrunken_nrwsaf.list,
+                              betaparams = EB.beta.params)
+  }
+
+  # tidy up
+  smplnames <- colnames(vcfRobj@gt)[2:ncol(vcfRobj@gt)]
+  out <- t(shrunken_nrwsaf)
+  colnames(out) <- smplnames
   # out the shrunk nrwsaf
-  return(shrunken_nrwsaf)
+  return(out)
 
 }
 
 
-#TODO extend to biallelic framework
-#' @title Perform GT Imputation, Loci-by-Loci
+#' @title Perform GT Imputation, Loci-by-Loci for Biallelic
 #'
 #' @param vcfRobject vcfR; a vcfR object
 #' @param seed numeric; Reproducible Seed
@@ -97,7 +119,7 @@ EB_for_wsaf <- function(vcfRobj, imputemissing = T, seed = 48){
 #' @details Loci must all be biallelic. Imputation for missing loci is performed by drawing a 0 or 2 weighted by the PLAF
 #' @export
 
-binomial_draw_gt_imputation <- function(vcfRobj, seed = 48){
+binomial_draw_gtmat012_imputation <- function(vcfRobj, seed = 48){
   set.seed(seed)
   #..............................................................
   # catches
